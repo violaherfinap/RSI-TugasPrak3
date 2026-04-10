@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16
-    container_name: docker-rsi
+    container_name: docker-rsi-tugas-3
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234

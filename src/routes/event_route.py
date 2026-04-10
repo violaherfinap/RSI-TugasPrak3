@@ -9,24 +9,29 @@ router = APIRouter(prefix="/events", tags=["Events"])
 
 @router.get("/")
 def get_events(db: Session = Depends(get_session)):
-    return EventController().get_all(db)
+    controller = EventController(db) 
+    return controller.get_all()
 
 
 @router.get("/{id}")
 def get_event(id: int, db: Session = Depends(get_session)):
-    return EventController().get_by_id(id, db)
+    controller = EventController(db)
+    return controller.get_by_id(id) 
 
 
 @router.post("/")
 def create_event(event: EventCreate, db: Session = Depends(get_session)):
-    return EventController().create(event, db)
+    controller = EventController(db)
+    return controller.create(event)
 
 
 @router.put("/{id}")
 def update_event(id: int, event: EventUpdate, db: Session = Depends(get_session)):
-    return EventController().update(id, event, db)
+    controller = EventController(db)
+    return controller.update(id, event)
 
 
 @router.delete("/{id}")
 def delete_event(id: int, db: Session = Depends(get_session)):
-    return EventController().delete(id, db)
+    controller = EventController(db)
+    return controller.delete(id)
