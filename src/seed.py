@@ -4,9 +4,12 @@ from src.database.connection import engine
 from src.database.model.models import (
     Role, User, Account, Event, Registration, Log
 )
+from src.utils.security import hash_password
+
 
 def now():
     return datetime.utcnow()
+
 
 def seed_roles(session: Session):
     if session.exec(select(Role)).first():
@@ -14,14 +17,14 @@ def seed_roles(session: Session):
         return
 
     roles = [
-        Role(name="admin"),
         Role(name="user"),
-        Role(name="committee"),
+        Role(name="admin"),
+        Role(name="superadmin"),
     ]
 
     session.add_all(roles)
     session.commit()
-    print("Seeded roles")
+    print("Seeded roles: user, admin, superadmin")
 
 
 def seed_users(session: Session):
@@ -51,19 +54,50 @@ def seed_accounts(session: Session):
         return
 
     users = session.exec(select(User)).all()
-    roles = session.exec(select(Role)).all()
+    roles = {r.name: r for r in session.exec(select(Role)).all()}
+
+    role_user       = roles.get("user")
+    role_admin      = roles.get("admin")
+    role_superadmin = roles.get("superadmin")
 
     accounts = []
-    for i, user in enumerate(users):
-        role = roles[i % len(roles)]
 
+    # 1 superadmin
+    accounts.append(
+        Account(
+            user_id=users[0].id,
+            role_id=role_superadmin.id,
+            email="superadmin@mail.com",
+            username="superadmin",
+            password=hash_password("superadmin123"),
+            created_at=now(),
+            updated_at=now(),
+        )
+    )
+
+    # 3 admin (user index 1-3)
+    for i in range(1, 4):
         accounts.append(
             Account(
-                user_id=user.id,
-                role_id=role.id,
-                email=f"user{i+1}@mail.com",
-                username=f"user{i+1}",
-                password="hashedpassword",
+                user_id=users[i].id,
+                role_id=role_admin.id,
+                email=f"admin{i}@mail.com",
+                username=f"admin{i}",
+                password=hash_password(f"admin{i}123"),
+                created_at=now(),
+                updated_at=now(),
+            )
+        )
+
+    # 6 user biasa (user index 4-9)
+    for i in range(4, 10):
+        accounts.append(
+            Account(
+                user_id=users[i].id,
+                role_id=role_user.id,
+                email=f"user{i}@mail.com",
+                username=f"user{i}",
+                password=hash_password(f"user{i}123"),
                 created_at=now(),
                 updated_at=now(),
             )
@@ -71,7 +105,7 @@ def seed_accounts(session: Session):
 
     session.add_all(accounts)
     session.commit()
-    print("Seeded accounts")
+    print("Seeded accounts: 1 superadmin, 3 admin, 6 user (passwords hashed)")
 
 
 def seed_events(session: Session):
@@ -85,7 +119,7 @@ def seed_events(session: Session):
             description="Sample event",
             quota=50,
             started_at=now() + timedelta(days=i),
-            ended_at=now() + timedelta(days=i+1),
+            ended_at=now() + timedelta(days=i + 1),
             created_at=now(),
             updated_at=now(),
         )
@@ -145,6 +179,7 @@ def seed_logs(session: Session):
     session.add_all(logs)
     session.commit()
     print("Seeded logs")
+
 
 def run():
     with Session(engine) as session:
