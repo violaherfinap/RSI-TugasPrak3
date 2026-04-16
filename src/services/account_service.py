@@ -1,6 +1,7 @@
 from sqlmodel import Session
 from src.repositories.account_repository import AccountRepository
 from src.database.model.models import Account
+from src.utils.security import hash_password
 from datetime import datetime
 from src.utils.security import hash_password
 
