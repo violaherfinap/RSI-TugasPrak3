@@ -4,6 +4,7 @@ from src.database.connection import engine
 from src.database.model.models import (
     Role, User, Account, Event, Registration, Log
 )
+from src.utils.security import hash_password
 
 def now():
     return datetime.utcnow()
@@ -63,7 +64,7 @@ def seed_accounts(session: Session):
                 role_id=role.id,
                 email=f"user{i+1}@mail.com",
                 username=f"user{i+1}",
-                password="hashedpassword",
+                password=hash_password("password123"),
                 created_at=now(),
                 updated_at=now(),
             )

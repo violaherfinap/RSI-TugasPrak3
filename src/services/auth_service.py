@@ -21,13 +21,7 @@ class AuthService:
                 detail="Email/username atau password salah"
             )
 
-        try:
-            password_valid = verify_password(payload.password, account.password)
-        except UnknownHashError:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Sistem autentikasi belum siap, password belum di-hash."
-            )
+        password_valid = verify_password(payload.password, account.password)
 
         if not password_valid:
             raise HTTPException(
