@@ -3,14 +3,15 @@ name = "backend"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "T-Rex2586",email = "theodosiusmahardika9@mail.com"}
+    {name = "T-Rex2586", email = "theodosiusmahardika9@mail.com"}
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "sqlalchemy (>=2.0.48,<3.0.0)",
     "psycopg2-binary (>=2.9.11,<3.0.0)",
     "alembic (>=1.18.4,<2.0.0)",
-    "sqlmodel (>=0.0.37,<0.0.38)"
+    "sqlmodel (>=0.0.37,<0.0.38)",
+    "bcrypt (>=4.0.0)" 
 ]
 
 

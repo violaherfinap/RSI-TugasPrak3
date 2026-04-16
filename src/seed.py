@@ -6,7 +6,6 @@ from src.database.model.models import (
 )
 from src.utils.security import hash_password
 
-
 def now():
     return datetime.utcnow()
 
@@ -79,25 +78,11 @@ def seed_accounts(session: Session):
     for i in range(1, 4):
         accounts.append(
             Account(
-                user_id=users[i].id,
-                role_id=role_admin.id,
-                email=f"admin{i}@mail.com",
-                username=f"admin{i}",
-                password=hash_password(f"admin{i}123"),
-                created_at=now(),
-                updated_at=now(),
-            )
-        )
-
-    # 6 user biasa (user index 4-9)
-    for i in range(4, 10):
-        accounts.append(
-            Account(
-                user_id=users[i].id,
-                role_id=role_user.id,
-                email=f"user{i}@mail.com",
-                username=f"user{i}",
-                password=hash_password(f"user{i}123"),
+                user_id=user.id,
+                role_id=role.id,
+                email=f"user{i+1}@mail.com",
+                username=f"user{i+1}",
+                password=hash_password("password123"),
                 created_at=now(),
                 updated_at=now(),
             )

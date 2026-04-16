@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class LoginRequest(BaseModel):
     identifier: str
@@ -10,3 +10,8 @@ class TokenResponse(BaseModel):
     account_id: int
     user_id: int
     role: str
+
+class RegisterRequest(BaseModel):
+    username: str
+    email: EmailStr
+    password: str

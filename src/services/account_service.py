@@ -3,6 +3,7 @@ from src.repositories.account_repository import AccountRepository
 from src.database.model.models import Account
 from src.utils.security import hash_password
 from datetime import datetime
+from src.utils.security import hash_password
 
 
 class AccountService:
@@ -22,7 +23,7 @@ class AccountService:
             role_id=data.role_id,
             email=data.email,
             username=data.username,
-            password=hash_password(data.password),  # Hash password sebelum disimpan
+            password=hash_password(data.password),
             created_at=datetime.now(),
             updated_at=datetime.now()
         )
@@ -42,7 +43,7 @@ class AccountService:
         if data.username is not None:
             account.username = data.username
         if data.password is not None:
-            account.password = hash_password(data.password)  # Hash password baru sebelum disimpan
+            account.password = hash_password(data.password)
 
         account.updated_at = datetime.now()
 
