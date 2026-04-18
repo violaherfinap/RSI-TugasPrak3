@@ -1,15 +1,18 @@
 # auth_service.py
 from fastapi import HTTPException, status
-from sqlmodel import Session
+from sqlmodel import Session, select
 from passlib.exc import UnknownHashError
 
 from src.repositories.auth_repository import AuthRepository
 from src.dto.auth_dto import LoginRequest, TokenResponse, RegisterRequest
 from src.utils.security import verify_password, create_access_token, hash_password
+from src.database.model.models import User, Account, Role
+from datetime import datetime
 
 
 class AuthService:
     def __init__(self, session: Session):
+        self.session = session
         self.repo = AuthRepository(session)
 
     def login(self, payload: LoginRequest) -> TokenResponse:
@@ -50,13 +53,52 @@ class AuthService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Password tidak boleh kosong"
             )
+            
+        existing_account = self.repo.find_by_email_or_username(payload.email)
+        if not existing_account:
+            existing_account = self.repo.find_by_email_or_username(payload.username)
+            
+        if existing_account:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email atau username sudah terdaftar"
+            )
 
         hashed_password = hash_password(payload.password)
 
-        user_data = payload.dict()
-        user_data["password"] = hashed_password
+        user = User(
+            first_name=payload.username,
+            last_name="",
+            whatsapp="",
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+        self.session.add(user)
+        self.session.commit()
+        self.session.refresh(user)
+        
+        # Ambil role pertama sebagai default, jika tidak ada, buat baru
+        role = self.session.exec(select(Role)).first()
+        if not role:
+            role = Role(name="USER", created_at=datetime.now(), updated_at=datetime.now())
+            self.session.add(role)
+            self.session.commit()
+            self.session.refresh(role)
+
+        account = Account(
+            username=payload.username,
+            email=payload.email,
+            password=hashed_password,
+            user_id=user.id,
+            role_id=role.id,
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+        self.session.add(account)
+        self.session.commit()
+        self.session.refresh(account)
 
         return {
-            "username": user_data["username"],
-            "email": user_data["email"]
+            "username": account.username,
+            "email": account.email
         }
